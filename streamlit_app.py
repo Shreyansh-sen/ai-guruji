@@ -1,22 +1,31 @@
 import streamlit as st
 import tiktoken
-from main import ask_guruji  # simplified Guruji brain
+
+from main import ask_guruji  # mantra-only Guruji brain
 
 # ---------------- TOKEN UTILS ----------------
 encoding = tiktoken.get_encoding("cl100k_base")
 
 def count_tokens(text: str) -> int:
+    if not text:
+        return 0
     return len(encoding.encode(text))
 
 
 # ---------------- AZURE PRICING (per 1M tokens) ----------------
+# NOTE: These are ESTIMATES, not exact Azure billing numbers
 INPUT_COST_PER_1M = 0.25
 OUTPUT_COST_PER_1M = 2.00
 
 
 # ---------------- STREAMLIT CONFIG ----------------
-st.set_page_config(page_title="AIGuruji", layout="centered")
+st.set_page_config(
+    page_title="AIGuruji – Mantra Guide",
+    layout="centered"
+)
+
 st.title("🙏 AIGuruji – Mantra Guide")
+st.caption("A calm spiritual assistant that gently recommends mantras")
 
 
 # ---------------- SESSION STATE ----------------
@@ -32,13 +41,17 @@ if "costs" not in st.session_state:
 
 
 # ---------------- INPUT ----------------
-user_input = st.text_input("Ask your question:")
+user_input = st.text_input(
+    "Ask what you are feeling or seeking:",
+    placeholder="I feel anxious and restless..."
+)
 
 
 # ---------------- ACTION ----------------
 if st.button("Ask") and user_input.strip():
-    # 🔮 Call Guruji (SINGLE TURN)
-    reply = ask_guruji(user_input)
+    with st.spinner("🕉️ Finding a suitable mantra..."):
+        # 🔮 SINGLE TURN CALL (no history sent)
+        reply = ask_guruji(user_input)
 
     # -------- TOKEN ESTIMATION --------
     input_tokens = count_tokens(user_input)
@@ -61,26 +74,30 @@ if st.button("Ask") and user_input.strip():
 # ---------------- CHAT DISPLAY ----------------
 for role, message in st.session_state.history:
     with st.chat_message(role):
-        st.write(message)
+        st.markdown(message)
 
 
 # ---------------- COST BREAKDOWN ----------------
-st.divider()
-st.subheader("📊 Token & Cost Breakdown")
+if st.session_state.history:
+    st.divider()
+    st.subheader("📊 Token & Cost Breakdown")
 
-st.write(f"🟦 **Input tokens:** {st.session_state.costs['input_tokens']}")
-st.write(f"🟨 **Output tokens:** {st.session_state.costs['output_tokens']}")
-st.write(f"💰 **Estimated total cost:** ${st.session_state.costs['total_cost']:.6f}")
+    st.write(f"🟦 **Input tokens:** {st.session_state.costs['input_tokens']}")
+    st.write(f"🟨 **Output tokens:** {st.session_state.costs['output_tokens']}")
+    st.write(f"💰 **Estimated total cost:** `${st.session_state.costs['total_cost']:.6f}`")
 
-st.caption("ℹ️ Costs are per-turn estimates. History is NOT sent to the model.")
+    st.caption(
+        "ℹ️ Cost shown is an estimate per request. "
+        "Conversation history is NOT sent to the model."
+    )
 
 
 # ---------------- CLEAR CHAT ----------------
-if st.button("Clear Chat"):
+if st.session_state.history and st.button("Clear Chat"):
     st.session_state.history = []
     st.session_state.costs = {
         "input_tokens": 0,
         "output_tokens": 0,
         "total_cost": 0.0
     }
-    st.experimental_rerun()
+    st.rerun()
