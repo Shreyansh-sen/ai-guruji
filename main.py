@@ -16,7 +16,7 @@ from prompts import(
 )
 
 POCKETBASE_URL = "https://mantra-cms-sbox.a4bx.io"
-MAPPING_COLLECTION = "mantra_god_usecase_mappings"
+MAPPING_COLLECTION = "mantra_god_usecase_mappings" 
 POCKETBASE_ADMIN_TOKEN =os.getenv('POCKETBASE_ADMIN_TOKEN')
 PB_HEADERS = {
     "Authorization": f"Bearer {POCKETBASE_ADMIN_TOKEN}"
@@ -240,13 +240,13 @@ def mantra_response_node(state: GuruState) -> GuruState:
             "final_response": "🙏 Is samay ke liye koi mantra uplabdh nahi hai."
         }
 
-    m = mantras[0]
+    # m = mantras[0]
 
     response = llm.invoke(
         MANTRA_RESPONSE_PROMPT.format(
-            mantra=m["title"],
-            god=m["god"],
-            usecase=m["usecase"]
+            mantra=mantras,
+            query=query,
+            history=format_history(history)
         )
     )
 
