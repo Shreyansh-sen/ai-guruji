@@ -11,6 +11,7 @@ def count_tokens(text: str) -> int:
     return len(encoding.encode(text))
 
 
+
 # ---------------- AZURE COST ESTIMATE ----------------
 INPUT_COST_PER_1M = 0.25
 OUTPUT_COST_PER_1M = 2.00
