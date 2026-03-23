@@ -15,8 +15,6 @@ from prompts import(
     CONVERSATIONAL_RESPONSE_PROMPT,
 )
 
-
-
 POCKETBASE_URL = "https://mantra-cms-sbox.a4bx.io"
 MAPPING_COLLECTION = "mantra_god_usecase_mappings" 
 POCKETBASE_ADMIN_TOKEN =os.getenv('POCKETBASE_ADMIN_TOKEN')
